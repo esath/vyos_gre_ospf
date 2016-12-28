@@ -11,7 +11,7 @@ parameters:
   heat_bdn_router:
     type: string
     description: ID of router admin created for tenant !!!!!!!
-    default: a8419590-ecf3-4800-bcca-c642b27d65ba
+    default: a8419590-ecf3-4800-bcca-c642b27dxxxx !!!Change This!!!
 
 #####################
 
