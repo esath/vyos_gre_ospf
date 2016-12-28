@@ -1,0 +1,215 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Template to create a new networks and routers to the public
+  network, and for deploying two servers into the new network. The template also
+  could assign floating IP addresses to each server so they are routable from the
+  public network.
+#####################
+parameters:
+
+  heat_bdn_router:
+    type: string
+    description: ID of router admin created for tenant !!!!!!!
+    default: a8419590-ecf3-4800-bcca-c642b27d65ba
+
+#####################
+
+  image:
+    type: string
+    description: Name of image to use for servers
+    default: VYOS_1.1.7_router
+
+  flavor:
+    type: string
+    description: Flavor to use for servers
+    default: sonera.linux.tiny
+
+  public_net:
+    type: string
+    description: ID or name of public network
+    default: bfb0d9f2-9b3a-4d87-9f05-255a288c13d0
+
+##########################
+  private_net_name:
+    type: string
+    description: Name of private network for customer
+    default: bdn_net1
+  private_net_cidr:
+    type: string
+    description: Private network address (CIDR notation)
+    default: 192.168.61.0/24
+  private_net_gateway:
+    type: string
+    description: Private network gateway address
+    default: 192.168.61.1
+  private_net_pool_start:
+    type: string
+    description: Start of private network IP address allocation pool
+    default: 192.168.61.200
+  private_net_pool_end:
+    type: string
+    description: End of private network IP address allocation pool
+    default: 192.168.61.250
+
+########################
+  private_net2_name:
+    type: string
+    description: Name of private network connected to Datanet
+    default: bdn_net2
+  private_net2_cidr:
+    type: string
+    description: Private network address (CIDR notation)
+    default: 192.168.62.0/24
+  private_net2_gateway:
+    type: string
+    description: Private network gateway address
+    default: 192.168.62.1
+  private_net2_pool_start:
+    type: string
+    description: Start of private network IP address allocation pool
+    default: 192.168.62.200
+  private_net2_pool_end:
+    type: string
+    description: End of private network IP address allocation pool
+    default: 192.168.62.250
+
+#
+######################
+#
+resources:
+
+  private_net:
+    type: OS::Neutron::Net
+    properties:
+      name: { get_param: private_net_name }
+
+  private_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: private_net }
+      cidr: { get_param: private_net_cidr }
+      gateway_ip: { get_param: private_net_gateway }
+      host_routes: [ { 'destination' : '192.168.1.0/24', 'nexthop' : '192.168.61.201'}, { 'destination' : '192.168.13.0/24', 'nexthop' : '192.168.61.201'}]
+      dns_nameservers: [ '193.210.18.18', '193.210.19.190' ]
+      allocation_pools:
+        - start: { get_param: private_net_pool_start }
+          end: { get_param: private_net_pool_end }
+
+########################
+
+  private_net2:
+    type: OS::Neutron::Net
+    properties:
+      name: { get_param: private_net2_name }
+
+  private_subnet2:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: private_net2 }
+      cidr: { get_param: private_net2_cidr }
+      gateway_ip: { get_param: private_net2_gateway }
+      allocation_pools:
+        - start: { get_param: private_net2_pool_start }
+          end: { get_param: private_net2_pool_end }
+
+######################
+
+  heat_router_01:
+    type: OS::Neutron::Router
+    properties:
+      external_gateway_info: { network: { get_param: public_net } }
+
+  heat_router_int0:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: heat_router_01 }
+      subnet_id: { get_resource: private_subnet }
+
+  external_bdn_router_int:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_param: heat_bdn_router }
+      subnet_id: { get_resource: private_subnet2 }
+
+##########################
+
+  server1:
+    type: OS::Nova::Server
+    properties:
+      name: Router1
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      networks:
+        - port: { get_resource: server1_port }
+        - port: { get_resource: server1_port2 }
+
+  server1_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: private_net }
+      fixed_ips:
+        - subnet_id: { get_resource: private_subnet }
+
+  server1_port2:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: private_net2 }
+      fixed_ips:
+        - subnet_id: { get_resource: private_subnet2 }
+
+  server1_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: { get_param: public_net }
+      port_id: { get_resource: server1_port }
+
+##########################
+
+#  server2:
+#    type: OS::Nova::Server
+#    properties:
+#      name: Router2
+#      image: { get_param: image }
+#      flavor: { get_param: flavor }
+#      networks:
+#        - port: { get_resource: server2_port }
+#        - port: { get_resource: server2_port2 }
+#
+#  server2_port:
+#    type: OS::Neutron::Port
+#    properties:
+#      network_id: { get_resource: private_net }
+#      fixed_ips:
+#        - subnet_id: { get_resource: private_subnet }
+#
+#  server2_port2:
+#    type: OS::Neutron::Port
+#    properties:
+#      network_id: { get_resource: private_net2 }
+#      fixed_ips:
+#        - subnet_id: { get_resource: private_subnet2 }
+#
+#  server2_floating_ip:
+#    type: OS::Neutron::FloatingIP
+#    properties:
+#      floating_network: { get_param: public_net }
+#      port_id: { get_resource: server2_port }
+
+##########################
+
+outputs:
+  server1_private_ip:
+    description: IP address of server1 in private network
+    value: { get_attr: [ server1, first_address ] }
+  server1_public_ip:
+    description: Floating IP address of router1 in public network
+    value: { get_attr: [ server1_floating_ip, floating_ip_address ] }
+#
+#  server2_private_ip:
+#    description: IP address of server2 in private network
+#    value: { get_attr: [ server2, first_address ] }
+#  server2_public_ip:
+#    description: Floating IP address of router2 in public network
+#   value: { get_attr: [ server2_floating_ip, floating_ip_address ] }
+

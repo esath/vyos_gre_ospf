@@ -1,0 +1,28 @@
+---
+- name: Run ping
+  hosts: vyos
+  gather_facts: false
+
+  tasks:
+
+#   - name: pingi
+#     raw: ping 193.210.18.18 -c 3
+#     register: ping_result
+#     args:
+#        executable: /bin/vbash
+#
+#   - debug: var=ping_result.stdout_lines
+#
+#Or use shell:
+
+    - name: ping
+      shell: ping 10.50.0.1 -c 3
+      register: ping_result
+    - debug: var=ping_result.stdout_lines
+
+    - name: show_route
+      shell: ip route
+      register: route_result
+    - debug: var=route_result.stdout_lines
+
+

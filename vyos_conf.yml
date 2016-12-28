@@ -1,0 +1,13 @@
+---
+- name: Show interfaces
+  hosts: vyos
+  gather_facts: false
+
+  tasks:
+
+    - script: ./vyos_conf.sh
+      register: sh_result
+
+    - debug: var=sh_result.stdout_lines
+
+
