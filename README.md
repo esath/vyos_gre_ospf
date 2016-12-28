@@ -1,9 +1,11 @@
 
 Source your credentials for Openstack
 Ask admin to create external router. You need ID for router to run stack.
-Create networks & routers with HEAT-template (modify bdn-router-ID or use --parameters):
+
+#Create networks & routers with HEAT-template
+- (modify bdn-router-ID or use --parameters):
 - $ heat stack-create --template-file BDN_Vyos_STACK.yml --parameters "heat_bdn_router=a8419590-ecf3-4800-bcca-c642b27d65bxx" BDNSTACK
-OR (depends what tools you have)
+- OR (depends what tools you have)
 -  *$ openstack stack create vyos_bdn_stack -t BDN_Vyos_STACK.yml --parameter "heat_bdn_router=a8419590-ecf3-4800-bcca-c642b27d65xx"
 
 Full guide:
