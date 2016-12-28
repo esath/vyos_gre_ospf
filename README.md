@@ -17,7 +17,11 @@ Modify hosts -file to match your VyOS floating-ip.
 
 (propably now you need to remove ip dhcp from VyOS eth1 -interface using openstack-console)
 
+#Modify security-group!!!!!!
+
 Login VyOS intance to verify connectivity and add keys (look below).
+First time login with 'ssh vyos@192.130.3.xx' Ansible won't work before that.
+ 
 With sh_interfaces.yml playbook you can safely test Ansible-connection.
 
 And finally you can configure VyOS with vyos_conf.yml playbook.
@@ -52,8 +56,6 @@ Change 192.168.61.xx ip address for eth1 and for 'tunX local-ip 192.168.62.xx'
 Finally:
 - $ ansible-playbook vyos_conf.yml -vvvv
 
-REMEMBER TO DISABLE ANTI-SPOOFING (See wiki-guide)
-
 ------------
 With this you can test tunnel endpoint and check routing-table.
 You should see ospf-router through tun-interface (proto zebra).
@@ -63,7 +65,9 @@ You should see ospf-router through tun-interface (proto zebra).
 
 ----
 #Things to fix:
- - Automate anti-spoof neutron-command.
+ - DONE: Automate anti-spoof neutron-command.
  - Insert variables in one place (bdn-router-id , eth1-ip_address , floating-ip) 
    (if possible)
  - BGP-routing instead of OSPF
+ - Add security-group to HEAT-template
+ - Clear Ansible output. That's full of locale errors you don't need to care.

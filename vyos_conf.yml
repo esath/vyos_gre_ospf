@@ -7,7 +7,6 @@
 
     - script: ./vyos_conf.sh
       register: sh_result
-
     - debug: var=sh_result.stdout_lines
 
 

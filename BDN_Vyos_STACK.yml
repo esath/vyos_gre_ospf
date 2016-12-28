@@ -11,7 +11,7 @@ parameters:
   heat_bdn_router:
     type: string
     description: ID of router admin created for tenant !!!!!!!
-    default: a8419590-ecf3-4800-bcca-c642b27dxxxx !!!Change This!!!
+    default: a8419590-ecf3-4800-bcca-c642b27d65ba
 
 #####################
 
@@ -29,6 +29,11 @@ parameters:
     type: string
     description: ID or name of public network
     default: bfb0d9f2-9b3a-4d87-9f05-255a288c13d0
+
+  router_address:
+    type: string
+    description: Client-side ip-address of router-interface
+    default: 192.168.61.254
 
 ##########################
   private_net_name:
@@ -50,7 +55,7 @@ parameters:
   private_net_pool_end:
     type: string
     description: End of private network IP address allocation pool
-    default: 192.168.61.250
+    default: 192.168.61.254
 
 ########################
   private_net2_name:
@@ -90,7 +95,7 @@ resources:
       network_id: { get_resource: private_net }
       cidr: { get_param: private_net_cidr }
       gateway_ip: { get_param: private_net_gateway }
-      host_routes: [ { 'destination' : '192.168.0.0/16', 'nexthop' : '192.168.61.203'}, { 'destination' : '10.0.0.0/8', 'nexthop' : '192.168.61.203'}]
+      host_routes: [ { 'destination' : '192.168.0.0/16', 'nexthop' : '192.168.61.253'}, { 'destination' : '10.0.0.0/8', 'nexthop' : '192.168.61.254'}]
       dns_nameservers: [ '193.210.18.18', '193.210.19.190' ]
       allocation_pools:
         - start: { get_param: private_net_pool_start }
@@ -142,19 +147,25 @@ resources:
       flavor: { get_param: flavor }
       networks:
         - port: { get_resource: server1_port }
+#       - port: { get_param: router_address }
         - port: { get_resource: server1_port2 }
 
   server1_port:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: private_net }
+      allowed_address_pairs:
+        - ip_address: 0.0.0.0/0
       fixed_ips:
-        - subnet_id: { get_resource: private_subnet }
+#       - subnet_id: { get_resource: private_subnet }
+        - ip_address: { get_param: router_address }
 
   server1_port2:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: private_net2 }
+      allowed_address_pairs:
+        - ip_address: 0.0.0.0/0
       fixed_ips:
         - subnet_id: { get_resource: private_subnet2 }
 
