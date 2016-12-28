@@ -6,6 +6,6 @@ localhost ansible_connection=local
 
 [vyos:vars]
 ansible_user=vyos
-#ansible_ssh_pass=tsfcloud
+#ansible_ssh_pass=tsfxxx
 ansible_ssh_private_key_file=/home/ubuntu/.ssh/id_rsa.pub
 
