@@ -158,19 +158,19 @@ resources:
       networks:
         - port: { get_resource: server1_port }
         - port: { get_resource: server1_port2 }
+      security_groups:
+        - { get_resource: router1_security_group }
+
 #      user_data_format: RAW
 #      user_data:
 #        str_replace:
 #          template: |
 #            #!/vbin/bash
 #            source /opt/vyatta/etc/functions/script-template
-#            configure
 #            set interfaces ethernet eth1 address $ADDR1 /32
-#            commit
-#            save
-#            exit
 #          params:
 #            $ADDR1: {get_param: router_dn_address }
+
 
   server1_port:
     type: OS::Neutron::Port
@@ -189,6 +189,16 @@ resources:
         - ip_address: 0.0.0.0/0
       fixed_ips:
         - ip_address: { get_param: router_dn_address }
+
+  router1_security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: vyos_security_group
+      rules:
+        - protocol: icmp
+        - protocol: tcp
+          port_range_min: 22
+          port_range_max: 22
 
   server1_floating_ip:
     type: OS::Neutron::FloatingIP
