@@ -17,7 +17,7 @@ Modify hosts -file to match your VyOS floating-ip.
 
 (propably now you need to remove ip dhcp from VyOS eth1 -interface using openstack-console)
 
-#Modify security-group!!!!!!
+#Modify security-group (SSH&GRE)!!!!!!
 
 Login VyOS intance to verify connectivity and add keys (look below).
 First time login with 'ssh vyos@192.130.3.xx' Ansible won't work before that.
@@ -25,6 +25,7 @@ First time login with 'ssh vyos@192.130.3.xx' Ansible won't work before that.
 With sh_interfaces.yml playbook you can safely test Ansible-connection.
 
 And finally you can configure VyOS with vyos_conf.yml playbook.
+You have to change 192.168.62.xx address to vyos_conf.sh. Admin gives that.
 Modify carefully!!
 
 
@@ -70,4 +71,6 @@ You should see ospf-router through tun-interface (proto zebra).
    (if possible)
  - BGP-routing instead of OSPF
  - Add security-group to HEAT-template
- - Clear Ansible output. That's full of locale errors you don't need to care.
+ - Clear Ansible output of vyos_conf.yml. That's full of locale errors you don't need to care.
+ - Stack deletion fails if you don't release Floating-ip first
+ - Host-routes should be added for networks behind Datanet. Heat shouls ask those as parameter.

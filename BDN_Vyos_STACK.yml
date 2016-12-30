@@ -4,21 +4,31 @@ description: >
   Template to create a new networks and routers to the public
   network, and for deploying two servers into the new network. The template also
   could assign floating IP addresses to each server so they are routable from the
-  public network.
-#####################
+  public network. 
+
+#################################################
+# You have to change these two first parameters #
+#################################################
+
 parameters:
 
   heat_bdn_router:
     type: string
-    description: ID of router admin created for tenant !!!!!!!
-    default: a8419590-ecf3-4800-bcca-c642b27d65ba
+    description: ID of router admin created for tenant !!
+    default: a8419590-ecf3-4800-bcca-c642b27d65baxxxx
+
+  router_dn_address:
+    type: string
+    description: Datanet-side ip-address of router-interface. Admin gives this!!
+    default: 192.168.62.222
+
 
 #####################
 
   image:
     type: string
     description: Name of image to use for servers
-    default: VYOS_1.1.7_router
+    default: VYOS_1.1.7_router2
 
   flavor:
     type: string
@@ -147,8 +157,20 @@ resources:
       flavor: { get_param: flavor }
       networks:
         - port: { get_resource: server1_port }
-#       - port: { get_param: router_address }
         - port: { get_resource: server1_port2 }
+#      user_data_format: RAW
+#      user_data:
+#        str_replace:
+#          template: |
+#            #!/vbin/bash
+#            source /opt/vyatta/etc/functions/script-template
+#            configure
+#            set interfaces ethernet eth1 address $ADDR1 /32
+#            commit
+#            save
+#            exit
+#          params:
+#            $ADDR1: {get_param: router_dn_address }
 
   server1_port:
     type: OS::Neutron::Port
@@ -157,7 +179,6 @@ resources:
       allowed_address_pairs:
         - ip_address: 0.0.0.0/0
       fixed_ips:
-#       - subnet_id: { get_resource: private_subnet }
         - ip_address: { get_param: router_address }
 
   server1_port2:
@@ -167,7 +188,7 @@ resources:
       allowed_address_pairs:
         - ip_address: 0.0.0.0/0
       fixed_ips:
-        - subnet_id: { get_resource: private_subnet2 }
+        - ip_address: { get_param: router_dn_address }
 
   server1_floating_ip:
     type: OS::Neutron::FloatingIP

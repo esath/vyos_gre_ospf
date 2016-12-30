@@ -2,7 +2,7 @@
 localhost ansible_connection=local
 
 [vyos]
-192.130.3.239
+192.130.3.xxx
 
 [vyos:vars]
 ansible_user=vyos
