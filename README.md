@@ -17,10 +17,9 @@ Modify hosts -file to match your VyOS floating-ip.
 
 (propably now you need to remove ip dhcp from VyOS eth1 -interface using openstack-console)
 
-#Modify security-group (SSH&GRE)!!!!!!
+#Add SSH and GRE(protocol 47) to default security-group!!!!!!
 
-Login VyOS intance to verify connectivity and add keys (look below).
-First time login with 'ssh vyos@192.130.3.xx' Ansible won't work before that.
+Optional: Login VyOS intance to verify connectivity and add keys (look below).
  
 With sh_interfaces.yml playbook you can safely test Ansible-connection.
 
@@ -28,8 +27,8 @@ And finally you can configure VyOS with vyos_conf.yml playbook.
 You have to change 192.168.62.xx address to vyos_conf.sh. Admin gives that.
 Modify carefully!!
 
-
-If you want to use pwd instead of public-key:
+----------
+If you don't use public-key u need sshpass installed (Ubuntu):
 - $ sudo apt-get install sshpass
 
 And run playbooks with: --ask-pass
@@ -66,11 +65,11 @@ You should see ospf-router through tun-interface (proto zebra).
 
 ----
 #Things to fix:
- - DONE: Automate anti-spoof neutron-command.
  - Insert variables in one place (bdn-router-id , eth1-ip_address , floating-ip) 
    (if possible)
  - BGP-routing instead of OSPF
- - Add security-group to HEAT-template
+ - Add security-group to HEAT-template is not working. Allow GRE and SSH in default-rules before you start.
  - Clear Ansible output of vyos_conf.yml. That's full of locale errors you don't need to care.
- - Stack deletion fails if you don't release Floating-ip first
+ - Stack deletion fails if you don't release Floating-ip first. Use del_stack.sh script.
  - Host-routes should be added for networks behind Datanet. Heat shouls ask those as parameter.
+   You can find example routes from template and modify using Horizon afterwards too.

@@ -2,6 +2,7 @@
 - name: Show interfaces
   hosts: vyos
   gather_facts: false
+#  validate_certs: no
 
   tasks:
 

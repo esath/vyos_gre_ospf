@@ -1,0 +1,43 @@
+
+- name: Add sec-grp for router1
+  hosts: localhost
+
+  vars:
+   sec_grp_name: vyos_acl
+
+  tasks:
+  - name: Create a new security group
+    os_security_group:
+      state: present
+      name: "{{ sec_grp_name }}"
+
+  - name: Create a new security group allowing any ICMP
+    os_security_group_rule:
+      security_group: "{{ sec_grp_name }}"
+      protocol: icmp
+      remote_ip_prefix: 0.0.0.0/0
+
+  - name: Create a new security group allowing any SSH connection
+    os_security_group_rule:
+      security_group: "{{ sec_grp_name }}"
+      protocol: tcp
+      port_range_min: 22
+      port_range_max: 22
+      remote_ip_prefix: 0.0.0.0/0
+
+  - name: Create a new security group allowing GRE-tunnel
+    raw: neutron security-group-rule-create vyos_acl --protocol 47
+
+
+#  - name: Create a new security group allowing GRE-tunnel
+#    os_security_group_rule:
+#      security_group: "{{ sec_grp_name }}"
+#      protocol: 47
+#      remote_ip_prefix: 10.50.0.0/30 
+
+#  - name: Create server instance
+#    os_server:
+#      state: present
+#      name: Router1
+#      security_groups: "{{ sec_grp_name }}"
+
