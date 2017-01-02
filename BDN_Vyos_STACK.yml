@@ -155,11 +155,12 @@ resources:
       name: Router1
       image: { get_param: image }
       flavor: { get_param: flavor }
+#      security_groups:
+#        - { get_resource: router1_security_group }
+#         - vyos_acl
       networks:
         - port: { get_resource: server1_port }
         - port: { get_resource: server1_port2 }
-      security_groups:
-        - { get_resource: router1_security_group }
 
 #      user_data_format: RAW
 #      user_data:
@@ -190,15 +191,16 @@ resources:
       fixed_ips:
         - ip_address: { get_param: router_dn_address }
 
-  router1_security_group:
-    type: OS::Neutron::SecurityGroup
-    properties:
-      name: vyos_security_group
-      rules:
-        - protocol: icmp
-        - protocol: tcp
-          port_range_min: 22
-          port_range_max: 22
+#  router1_security_group:
+#    type: OS::Neutron::SecurityGroup
+#    properties:
+#      name: vyos_security_group
+#      rules:
+#        - protocol: 47
+#        - protocol: icmp
+#        - protocol: tcp
+#          port_range_min: 22
+#          port_range_max: 22
 
   server1_floating_ip:
     type: OS::Neutron::FloatingIP
